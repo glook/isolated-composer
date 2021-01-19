@@ -1,49 +1,35 @@
 <?php
 
+use Glook\IsolatedComposer\helpers\FileHelper;
+
 return [
-	"prepare" => [
-		function(string $package, array $config, string $path, string $namespacePrefix) {
-			if (($package == 'kraken-io/kraken-php') && isset($config['autoload']['psr-0']['Kraken'])) {
-				$srcDir = trailingslashit($path.$config['autoload']['psr-0']['Kraken']);
-				$finder = new Symfony\Component\Finder\Finder();
-				$files = [];
-				foreach($finder->in($srcDir) as $fileInfo) {
-					$files[] = $fileInfo->getRealPath();
-				}
-
-				if (file_exists($srcDir.'Kraken.php')) {
-					$source = file_get_contents($srcDir.'Kraken.php');
-					$source = str_replace('<?php', "<?php\n\nnamespace Kraken;\n\nuse \\CURLFile;", $source);
-					file_put_contents($srcDir.'Kraken.php', $source);
-				}
-
-				$namespacedDir = trailingslashit($srcDir.'Kraken');
-				mkdir($namespacedDir, 0755, true);
-				foreach($files as $file) {
-					rename($file, $namespacedDir.pathinfo($file, PATHINFO_BASENAME));
-				}
-			}
-
-			return $config; // You should always return the $config after manipulating it
-		}
+	/**
+	 * This is a list of packages you don't want to prefix.
+	 * Matching packages will not be scanned for namespaces, but will still have code rewritten if it contains namespaces from other non-blacklisted packages.
+	 */
+	'blacklist' => [
+		'ext-*',
+		'lib-*',
+		'php',
+		'composer-plugin-api',
+		'symfony/polyfill-*',
 	],
-
-	"start" => [
-		function(string $source, ?string $currentNamespace, string $namespacePrefix, string $package, string $file) {
-			if ($package === 'duncan3dc/blade') {
-				$filename = pathinfo($file, PATHINFO_BASENAME);
-				if ($filename == 'BladeInstance.php') {
-					$source = str_replace("private function getViewFinder(", "protected function getViewFinder(", $source);
-					$source = str_replace("private function getViewFactory(", "protected function getViewFactory(", $source);
-				}
-			} else if ($package === 'smalot/pdfparser') {
-				$filename = pathinfo($file, PATHINFO_BASENAME);
-				if ($filename == 'Font.php') {
-					$source = str_replace('$details[\'Encoding\'] = ($this->has(\'Encoding\') ? (string) $this->get(\'Encoding\') : \'Ansi\');', '$details[\'Encoding\'] = \'Ansi\';', $source);
-				}
+	/** These functions are called after a package is processed */
+	'afterBuild' => [
+		function (string $package, string $outputPath, string $namespacePrefix) {
+			/**
+			 * @var string $package The name of the composer package
+			 * @var string $outputPath Temporary path to the package
+			 * @var string $namespacePrefix The namespace prefix
+			 */
+			if ($package === 'php-di/php-di') {
+				// Patching php-di annotations
+				$annotationPath = '/DI/Annotation';
+				$oldPath = $outputPath . 'src' . $annotationPath;
+				$newPath = FileHelper::normalizePath($outputPath . 'src/' . $namespacePrefix . $annotationPath);
+				FileHelper::createDirectory($newPath);
+				FileHelper::copyDirectory($oldPath, $newPath);
 			}
-
-			return $source;
 		},
 	],
 ];

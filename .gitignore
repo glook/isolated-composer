@@ -4,3 +4,4 @@ build
 temp
 vendor
 composer.lock
+.idea
