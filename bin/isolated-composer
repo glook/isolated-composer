@@ -12,18 +12,15 @@ foreach ($files as $file) {
 	}
 }
 
+use Glook\IsolatedComposer\commands;
 use Symfony\Component\Console\Application;
-use ILAB\Namespacer\Commands\RenamespaceCommand;
-use ILAB\Namespacer\Commands\ScanUsesCommand;
 
 $root = trailingslashit(getcwd());
 
-$renamespaceCommand = new RenamespaceCommand(null, $root);
-$scanCommand = new ScanUsesCommand(null, $root);
-
 $application = new Application();
-$application->add($renamespaceCommand);
-$application->add($scanCommand);
-$application->setDefaultCommand('renamespace', true);
+$application->addCommands([
+	new commands\NamespacerCommand(null, $root),
+]);
+$application->setDefaultCommand('namespacer', true);
 $application->run();
 
