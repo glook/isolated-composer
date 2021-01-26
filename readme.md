@@ -17,7 +17,22 @@ Once installed:
 ./vendor/bin/isolated-composer  [--composer COMPOSER] [--source SOURCE] [--package PACKAGE] [--namespace NAMESPACE] [--config CONFIG] [--vendor-dir vendor] <dest>
 ```
 
+# Usage with docker
+
+You use isolated-composer without installing it as composer dependency. Just use this image  [glook/php-isolated-composer](https://hub.docker.com/r/glook/php-isolated-composer).
+
+```bash
+docker run --rm -it -v ${PWD}:/app \
+    docker.io/glook/php-isolated-composer:latest --source /app \
+    --package sample-prefix \
+    --namespace SampleApp\\Vendor\\ \
+    --no-dev \
+    --vendor-dir vendor \
+    /app/output
+```
+
 ### Arguments
+
 | Argument    | Description                                                  |
 | ----------- | ------------------------------------------------------------ |
 | `composer`  | The path (full or relative) to the composer file containing all the package dependencies you want to renamespace.  You must specify this argument OR the `source` argument. |

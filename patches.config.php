@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * Isolated-composer
+ * @source https://github.com/glook/isolated-composer
+ */
 use Glook\IsolatedComposer\helpers\FileHelper;
 
 return [

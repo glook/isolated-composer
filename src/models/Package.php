@@ -347,7 +347,7 @@ class Package extends BaseBuilder
 
 		unset($composerConfig['extra']['branch-alias']['dev-master']);
 		FileHelper::createDirectory($outputPath, 0755, true);
-		shell_exec("cp -r {$this->getInputPath()} $outputPath/");
+		FileHelper::copyDirectory($this->getInputPath(),$outputPath);
 		$this->getConfig()->afterBuild($this->name, $this->getOutputPath(), $namespacePrefix);
 
 		$composerConfig = $this->processAutoload($composerConfig);
