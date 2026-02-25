@@ -1,14 +1,4 @@
 {
-  "name": "glook/isolated-composer",
-  "description": "Tool for re-namespacing composer packages and source code to make it isolated",
-  "type": "library",
-  "license": "MIT",
-  "minimum-stability": "dev",
-  "keywords": [
-    "namespace",
-    "wordpress",
-    "composer"
-  ],
   "authors": [
     {
       "name": "Andrey Polyakov",
@@ -19,10 +9,6 @@
       "email": "jon@interfacelab.com"
     }
   ],
-  "require": {
-    "symfony/console": "^5.1",
-    "ext-json": "*"
-  },
   "autoload": {
     "psr-4": {
       "Glook\\IsolatedComposer\\": "src"
@@ -31,5 +17,21 @@
       "src/functions.php"
     ]
   },
-  "bin": ["bin/namespacer"]
+  "bin": [
+    "bin/isolated-composer"
+  ],
+  "description": "Tool for re-namespacing composer packages and source code to make it isolated",
+  "keywords": [
+    "namespace",
+    "wordpress",
+    "composer"
+  ],
+  "license": "MIT",
+  "minimum-stability": "dev",
+  "name": "glook/isolated-composer",
+  "require": {
+    "symfony/console": "^5.1",
+    "ext-json": "*"
+  },
+  "type": "library"
 }
