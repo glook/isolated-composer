@@ -7,7 +7,6 @@ namespace Glook\IsolatedComposer\commands;
 
 use Exception;
 use Glook\IsolatedComposer\helpers\FileHelper;
-use Glook\IsolatedComposer\helpers\StringHelper;
 use Glook\IsolatedComposer\models\Project;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -65,7 +64,39 @@ class NamespacerCommand extends Command
 		$this->addOption('package', null, InputOption::VALUE_REQUIRED, 'The prefix to add to packages', null);
 		$this->addOption('namespace', null, InputOption::VALUE_REQUIRED, 'The prefix to add to namespaces', null);
 		$this->addOption('config', null, InputOption::VALUE_REQUIRED, 'The path to the configuration to use, if required.', null);
+		// Boolean (flag) composer options
+		$this->addOption('dry-run', null, InputOption::VALUE_NONE, 'Outputs the operations but will not execute anything (implies --verbose).');
+		$this->addOption('dev', null, InputOption::VALUE_NONE, 'Enables installation of require-dev packages (enabled by default, only needed if --no-dev was used before).');
 		$this->addOption('no-dev', null, InputOption::VALUE_NONE, 'Skip installing packages listed in require-dev. The autoloader generation skips the autoload-dev rules.');
+		$this->addOption('no-install', null, InputOption::VALUE_NONE, 'Skip the install step after updating the composer.lock file.');
+		$this->addOption('no-audit', null, InputOption::VALUE_NONE, 'Skip the audit step after updating the composer.lock file.');
+		$this->addOption('no-security-blocking', null, InputOption::VALUE_NONE, 'Audit print warnings but do not block.');
+		$this->addOption('lock', null, InputOption::VALUE_NONE, 'Only updates the lock file hash to suppress warning about the lock file being out of date.');
+		$this->addOption('no-autoloader', null, InputOption::VALUE_NONE, 'Skips autoloader generation.');
+		$this->addOption('no-progress', null, InputOption::VALUE_NONE, 'Do not output download progress.');
+		$this->addOption('with-dependencies', 'w', InputOption::VALUE_NONE, 'Add also dependencies of whitelisted packages to the whitelist.');
+		$this->addOption('with-all-dependencies', 'W', InputOption::VALUE_NONE, 'Add all dependencies of whitelisted packages to the whitelist.');
+		$this->addOption('optimize-autoloader', 'o', InputOption::VALUE_NONE, 'Optimize autoloader during autoloader dump.');
+		$this->addOption('classmap-authoritative', 'a', InputOption::VALUE_NONE, 'Autoload classes from the classmap only. Implicitly enables --optimize-autoloader.');
+		$this->addOption('apcu-autoloader', null, InputOption::VALUE_NONE, 'Use APCu to cache found/not-found classes.');
+		$this->addOption('ignore-platform-reqs', null, InputOption::VALUE_NONE, 'Ignore all platform requirements (php & ext- packages).');
+		$this->addOption('prefer-stable', null, InputOption::VALUE_NONE, 'Prefer stable versions of dependencies.');
+		$this->addOption('prefer-lowest', null, InputOption::VALUE_NONE, 'Prefer lowest versions of dependencies.');
+		$this->addOption('minimal-changes', 'm', InputOption::VALUE_NONE, 'During a partial update, only change versions of the packages in the require/require-dev list.');
+		$this->addOption('patch-only', null, InputOption::VALUE_NONE, 'Only allow patch-level updates during a partial update.');
+		$this->addOption('interactive', null, InputOption::VALUE_NONE, 'Interactive interface with autocompletion to select the packages to update.');
+		$this->addOption('root-reqs', null, InputOption::VALUE_NONE, 'Restricts the update to your first degree dependencies.');
+		$this->addOption('no-plugins', null, InputOption::VALUE_NONE, 'Disables plugins.');
+		$this->addOption('no-scripts', null, InputOption::VALUE_NONE, 'Skips execution of scripts defined in composer.json.');
+
+		// Value composer options
+		$this->addOption('prefer-install', null, InputOption::VALUE_REQUIRED, 'Forces installation from package sources when possible, including VCS information. (source/dist/auto)');
+		$this->addOption('audit-format', null, InputOption::VALUE_REQUIRED, 'Audit output format. Must be "table", "plain", "json", or "summary".');
+		$this->addOption('with', null, InputOption::VALUE_REQUIRED, 'Temporary version constraint to add, e.g. foo/bar:1.0.0 or foo/bar=1.0.0.');
+		$this->addOption('apcu-autoloader-prefix', null, InputOption::VALUE_REQUIRED, 'Use a custom prefix for the APCu autoloader cache.');
+		$this->addOption('bump-after-update', null, InputOption::VALUE_REQUIRED, 'Run bump after update, set to "dev", "no-dev" or true.');
+		$this->addOption('ignore-platform-req', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Ignore a specific platform requirement (php & ext- packages).');
+
 		$this->addOption('vendor-dir', null, InputOption::VALUE_REQUIRED, 'Name of folder where renamspaced packages will be stored (default: vendor)', 'vendor');
 	}
 
@@ -92,10 +123,7 @@ class NamespacerCommand extends Command
 				'namespacePrefix' => $this->getOption('namespace'),
 				'configPath' => $this->getConfigPath(),
 				'consoleOutput' => $output,
-				'composerOptions' => implode(' ', [
-					StringHelper::toBoolean($this->getOption('quiet')) ? '--quiet' : '',
-					StringHelper::toBoolean($this->getOption('no-dev')) ? '--no-dev' : '',
-				]),
+				'composerOptions' => trim($this->getComposerOptions()),
 				'vendorDir' => $this->getOption('vendor-dir'),
 			]);
 
@@ -195,10 +223,7 @@ class NamespacerCommand extends Command
 			$this->output->writeln('Creating project ... ');
 			$this->output->writeln('');
 
-			$composerOptions = implode(' ', [
-				StringHelper::toBoolean($this->getOption('quiet')) ? '--quiet' : '',
-				StringHelper::toBoolean($this->getOption('no-dev')) ? '--no-dev' : '',
-			]);
+			$composerOptions = trim($this->getComposerOptions());
 			shell_exec("cd $sourcePath && composer update {$composerOptions}");
 			$this->output->writeln('');
 			return $sourcePath;
@@ -259,6 +284,66 @@ class NamespacerCommand extends Command
 			}
 		}
 		return $configPath;
+	}
+
+	private function getComposerOptions(): string
+	{
+		$booleanOptions = [
+			'dry-run', 'dev', 'no-dev', 'no-install', 'no-audit',
+			'no-security-blocking', 'lock', 'no-autoloader', 'no-progress',
+			'with-dependencies', 'with-all-dependencies', 'optimize-autoloader',
+			'classmap-authoritative', 'apcu-autoloader', 'ignore-platform-reqs',
+			'prefer-stable', 'prefer-lowest', 'minimal-changes',
+			'patch-only', 'interactive', 'root-reqs',
+			'no-plugins', 'no-scripts',
+		];
+
+		$valueOptions = [
+			'prefer-install', 'audit-format', 'with',
+			'apcu-autoloader-prefix', 'bump-after-update',
+		];
+
+		$parts = [];
+
+		foreach ($booleanOptions as $option) {
+			if ($this->input->getOption($option)) {
+				$parts[] = '--' . $option;
+			}
+		}
+
+		foreach ($valueOptions as $option) {
+			$value = $this->input->getOption($option);
+			if (!empty($value)) {
+				$parts[] = '--' . $option . '=' . escapeshellarg($value);
+			}
+		}
+
+		foreach ((array) $this->input->getOption('ignore-platform-req') as $req) {
+			if (!empty($req)) {
+				$parts[] = '--ignore-platform-req=' . escapeshellarg($req);
+			}
+		}
+
+		// Symfony built-in: --quiet / -q
+		if ($this->output->isQuiet()) {
+			$parts[] = '--quiet';
+		}
+
+		// Symfony built-in: --verbose / -v / -vv / -vvv
+		if ($this->output->isDebug()) {
+			$parts[] = '-vvv';
+		} elseif ($this->output->isVeryVerbose()) {
+			$parts[] = '-vv';
+		} elseif ($this->output->isVerbose()) {
+			$parts[] = '--verbose';
+		}
+
+		// Symfony built-in: --no-interaction / -n
+		if (!$this->input->isInteractive()) {
+			$parts[] = '--no-interaction';
+		}
+
+		return implode(' ', $parts);
 	}
 
 	/**

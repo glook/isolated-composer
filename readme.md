@@ -14,7 +14,7 @@ composer require glook/isolated-composer
 Once installed:
 
 ```bash
-./vendor/bin/isolated-composer  [--composer COMPOSER] [--source SOURCE] [--package PACKAGE] [--namespace NAMESPACE] [--config CONFIG] [--vendor-dir vendor] <dest>
+./vendor/bin/isolated-composer [options] [--composer COMPOSER] [--source SOURCE] [--package PACKAGE] [--namespace NAMESPACE] [--config CONFIG] [--vendor-dir vendor] <dest>
 ```
 
 # Usage with docker
@@ -33,17 +33,64 @@ docker run --rm -it -v ${PWD}:/app \
 
 ### Arguments
 
-| Argument    | Description                                                  |
-| ----------- | ------------------------------------------------------------ |
-| `composer`  | The path (full or relative) to the composer file containing all the package dependencies you want to renamespace.  You must specify this argument OR the `source` argument. |
-| `source`    | The path (full or relative) to a directory containing a composer file and an existing vendor directory.  When using `source` the vendor directory must already exist (`composer update` must already have been run).  You must specify this argument OR the `composer` argument. |
-| `package`   | The prefix to append to package names, for example specifying `--package mcloud` will turn `nesbot/carbon` into `mcloud-nesbot/carbon`. Default is `mcloud`. |
-| `namespace` | The prefix to append to namespaces, for example specifying `--namespace MediaCloud\Vendor` will transform `namespace Aws;` into `namespace MediaCloud\Vendor\Aws;`. Default is `MediaClound\Vendor`. |
-| `config`    | An optional PHP configuration file for inserting filters into the namespacing process. |
-| `no-dev`    | Skip installing packages listed in require-dev. The autoloader generation skips the autoload-dev rules. |
-| `vendor-dir`  | Name of folder where renamspaced packages will be stored (default: vendor) |
-| `quiet` | Do not output any message (not even the command result messages) |
-| `<dest>`    | The destination directory.  Namespacer will create a directory named `vendor` inside that directory, removing it first if it already exists. |
+#### Tool options
+
+| Option | Description |
+| ------ | ----------- |
+| `--composer COMPOSER` | Path to a composer.json to renamespace (mutually exclusive with `--source`). |
+| `--source SOURCE` | Path to a directory with an existing vendor dir (mutually exclusive with `--composer`). |
+| `--package PACKAGE` | Prefix to add to package names, e.g. `my-prefix`. |
+| `--namespace NAMESPACE` | Prefix to add to PHP namespaces, e.g. `MyApp\\Vendor\\`. |
+| `--config CONFIG` | Path to an optional PHP config file with filter hooks. |
+| `--vendor-dir NAME` | Folder name for renamespaced packages (default: `vendor`). |
+| `<dest>` | Destination directory for the output. |
+
+#### Output / interaction (Symfony Console built-ins, forwarded to `composer update`)
+
+| Option | Description |
+| ------ | ----------- |
+| `-q` / `--quiet` | Do not output any message. |
+| `-v\|-vv\|-vvv` / `--verbose` | Increase verbosity of messages (`-vvv` = debug). |
+| `-n` / `--no-interaction` | Do not ask any interactive question. |
+
+#### Composer passthrough — boolean flags
+
+| Option | Description |
+| ------ | ----------- |
+| `--dry-run` | Outputs the operations but will not execute anything (implies `--verbose`). |
+| `--dev` | Enables installation of require-dev packages. |
+| `--no-dev` | Skip installing packages listed in require-dev. |
+| `--no-install` | Skip the install step after updating the lock file. |
+| `--no-audit` | Skip the audit step after updating the lock file. |
+| `--no-security-blocking` | Audit prints warnings but does not block. |
+| `--lock` | Only updates the lock file hash to suppress the out-of-date warning. |
+| `--no-autoloader` | Skips autoloader generation. |
+| `--no-progress` | Do not output download progress. |
+| `--no-plugins` | Disables composer plugins. |
+| `--no-scripts` | Skips execution of scripts defined in composer.json. |
+| `-w` / `--with-dependencies` | Add dependencies of whitelisted packages to the whitelist. |
+| `-W` / `--with-all-dependencies` | Add all dependencies of whitelisted packages to the whitelist. |
+| `-o` / `--optimize-autoloader` | Optimize autoloader during autoloader dump. |
+| `-a` / `--classmap-authoritative` | Autoload classes from the classmap only. |
+| `--apcu-autoloader` | Use APCu to cache found/not-found classes. |
+| `--ignore-platform-reqs` | Ignore all platform requirements (php & ext- packages). |
+| `--prefer-stable` | Prefer stable versions of dependencies. |
+| `--prefer-lowest` | Prefer lowest versions of dependencies. |
+| `-m` / `--minimal-changes` | During a partial update, only change versions in require/require-dev. |
+| `--patch-only` | Only allow patch-level updates during a partial update. |
+| `--interactive` | Interactive interface with autocompletion to select packages to update. |
+| `--root-reqs` | Restricts the update to first-degree dependencies. |
+
+#### Composer passthrough — value options
+
+| Option | Description |
+| ------ | ----------- |
+| `--prefer-install=SOURCE` | Force installation from `source`, `dist`, or `auto`. |
+| `--audit-format=FORMAT` | Audit output format: `table`, `plain`, `json`, or `summary`. |
+| `--with=CONSTRAINT` | Temporary version constraint, e.g. `foo/bar:1.0.0`. |
+| `--apcu-autoloader-prefix=PREFIX` | Custom prefix for the APCu autoloader cache. |
+| `--bump-after-update=MODE` | Run bump after update: `dev`, `no-dev`, or `true`. |
+| `--ignore-platform-req=PACKAGE` | Ignore a specific platform requirement (repeatable). |
 
 For example, you might run it:
 
