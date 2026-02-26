@@ -1,15 +1,15 @@
 #!/usr/bin/env php
 <?php
 $files = [
-	__DIR__ . '/../../../autoload.php', // composer dependency
-	__DIR__ . '/../vendor/autoload.php', // stand-alone package
+    __DIR__ . '/../../../autoload.php', // composer dependency
+    __DIR__ . '/../vendor/autoload.php', // stand-alone package
 ];
 
 foreach ($files as $file) {
-	if (is_file($file)) {
-		require_once $file;
-		break;
-	}
+    if (is_file($file)) {
+        require_once $file;
+        break;
+    }
 }
 
 use Glook\IsolatedComposer\commands;
@@ -20,7 +20,7 @@ $root = StringHelper::trailingslashit(getcwd());
 
 $application = new Application();
 $application->addCommands([
-	new commands\NamespacerCommand(null, $root),
+    new commands\NamespacerCommand(null, $root),
 ]);
 $application->setDefaultCommand('namespacer', true);
 $application->run();
