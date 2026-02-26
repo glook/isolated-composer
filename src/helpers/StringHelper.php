@@ -96,4 +96,15 @@ class StringHelper
 		return filter_var($string, FILTER_VALIDATE_BOOLEAN);
 	}
 
+
+	public static function trailingslashit($string): string
+	{
+		return self::untrailingslashit($string) . '/';
+	}
+
+	public static function untrailingslashit($string): string
+	{
+		return rtrim($string, '/\\');
+	}
+
 }

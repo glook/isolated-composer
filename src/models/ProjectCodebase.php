@@ -6,6 +6,7 @@
 namespace Glook\IsolatedComposer\models;
 
 use Glook\IsolatedComposer\helpers\FileHelper;
+use Glook\IsolatedComposer\helpers\StringHelper;
 
 /**
  * Class ProjectCodebase
@@ -101,7 +102,7 @@ class ProjectCodebase extends Package
 				$resourceList = array_map(static function ($section) {
 					if (is_array($section)) {
 						return array_map(static function ($path) {
-							return untrailingslashit($path);
+							return StringHelper::untrailingslashit($path);
 						}, array_values($section));
 					}
 					return [];
@@ -122,7 +123,7 @@ class ProjectCodebase extends Package
 	 */
 	public function getOutputPath(): string
 	{
-		return trailingslashit($this->getWorkingDir() . 'codebase');
+		return StringHelper::trailingslashit($this->getWorkingDir() . 'codebase');
 	}
 
 }

@@ -8,6 +8,7 @@ namespace Glook\IsolatedComposer\models;
 use Exception;
 use Glook\IsolatedComposer\components\BaseBuilder;
 use Glook\IsolatedComposer\helpers\FileHelper;
+use Glook\IsolatedComposer\helpers\StringHelper;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\ConsoleSectionOutput;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -98,7 +99,7 @@ class PackageCollection extends BaseBuilder
 			foreach ($lockConfig['packages'] as $package) {
 				$packageName = $package['name'];
 				$packageList[$packageName] = new Package([
-					'inputPath' => trailingslashit($inputPath . 'vendor/' . $packageName),
+					'inputPath' => StringHelper::trailingslashit($inputPath . 'vendor/' . $packageName),
 					'outputPath' => $this->getOutputPath(),
 					'name' => $packageName,
 					'version' => $package['version'],

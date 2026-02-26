@@ -7,6 +7,7 @@ namespace Glook\IsolatedComposer\commands;
 
 use Exception;
 use Glook\IsolatedComposer\helpers\FileHelper;
+use Glook\IsolatedComposer\helpers\StringHelper;
 use Glook\IsolatedComposer\models\Project;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -40,11 +41,11 @@ class NamespacerCommand extends Command
 	public function __construct(string $name = null, string $rootDir = null)
 	{
 		parent::__construct($name);
-		$this->rootDir = trailingslashit($rootDir);
+        $this->rootDir = StringHelper::trailingslashit($rootDir);
 
 		$tmpDirPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . uniqid('', true);
 		FileHelper::createDirectory($tmpDirPath, 0755, true);
-		$this->tmpDir = trailingslashit($tmpDirPath);
+		$this->tmpDir = StringHelper::trailingslashit($tmpDirPath);
 	}
 
 	public function __destruct()
@@ -216,7 +217,7 @@ class NamespacerCommand extends Command
 				throw new Exception("Composer file does not exist at $originalComposer.");
 			}
 
-			$sourcePath = trailingslashit($tmpDir . 'project');
+			$sourcePath = StringHelper::trailingslashit($tmpDir . 'project');
 			FileHelper::createDirectory($sourcePath, 0755, true);
 			copy($originalComposer, $sourcePath . 'composer.json');
 
@@ -231,9 +232,9 @@ class NamespacerCommand extends Command
 
 		$sourcePath = $this->getOption('source');
 		if (strpos($sourcePath, '/') !== 0) {
-			$sourcePath = trailingslashit($this->rootDir . $sourcePath);
+			$sourcePath = StringHelper::trailingslashit($this->rootDir . $sourcePath);
 		} else {
-			$sourcePath = trailingslashit($sourcePath);
+			$sourcePath = StringHelper::trailingslashit($sourcePath);
 		}
 
 		if (!file_exists($sourcePath)) {
@@ -250,9 +251,9 @@ class NamespacerCommand extends Command
 	{
 		$outputPath = $this->getArgument('dest');
 		if (strpos($outputPath, '/') !== 0) {
-			$outputPath = trailingslashit($this->rootDir . $outputPath);
+			$outputPath = StringHelper::trailingslashit($this->rootDir . $outputPath);
 		} else {
-			$outputPath = trailingslashit($outputPath);
+			$outputPath = StringHelper::trailingslashit($outputPath);
 		}
 
 		if (file_exists($outputPath)) {

@@ -7,6 +7,7 @@ namespace Glook\IsolatedComposer\components;
 
 use Exception;
 use Glook\IsolatedComposer\helpers\FileHelper;
+use Glook\IsolatedComposer\helpers\StringHelper;
 
 abstract class BaseBuilder extends BaseObject
 {
@@ -44,7 +45,7 @@ abstract class BaseBuilder extends BaseObject
 	 */
 	protected function setInputPath(string $value): void
 	{
-		$this->_inputPath = trailingslashit($value);
+		$this->_inputPath = StringHelper::trailingslashit($value);
 	}
 
 	/**
@@ -64,7 +65,7 @@ abstract class BaseBuilder extends BaseObject
 		if (!is_dir($value)) {
 			FileHelper::createDirectory($value, 0755, true);
 		}
-		$this->_workingDir = trailingslashit($value);
+		$this->_workingDir = StringHelper::trailingslashit($value);
 	}
 
 	/**
@@ -84,7 +85,7 @@ abstract class BaseBuilder extends BaseObject
 		if (!is_dir($value)) {
 			FileHelper::createDirectory($value, 0755, true);
 		}
-		$this->_outputPath = trailingslashit($value);
+		$this->_outputPath = StringHelper::trailingslashit($value);
 	}
 
 	/**

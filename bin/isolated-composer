@@ -13,9 +13,10 @@ foreach ($files as $file) {
 }
 
 use Glook\IsolatedComposer\commands;
+use Glook\IsolatedComposer\helpers\StringHelper;
 use Symfony\Component\Console\Application;
 
-$root = trailingslashit(getcwd());
+$root = StringHelper::trailingslashit(getcwd());
 
 $application = new Application();
 $application->addCommands([

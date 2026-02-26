@@ -12,10 +12,7 @@
   "autoload": {
     "psr-4": {
       "Glook\\IsolatedComposer\\": "src"
-    },
-    "files": [
-      "src/functions.php"
-    ]
+    }
   },
   "bin": [
     "bin/isolated-composer"

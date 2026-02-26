@@ -81,7 +81,7 @@ class Package extends BaseBuilder
 	public function getSourceFiles(): array
 	{
 		if (!$this->_sourceFiles) {
-			$path = trailingslashit($this->getOutputPath());
+			$path = StringHelper::trailingslashit($this->getOutputPath());
 			$this->_sourceFiles = $this->findFilesInPath($path);
 		}
 
@@ -93,7 +93,7 @@ class Package extends BaseBuilder
 	 */
 	public function getOutputPath(): string
 	{
-		return trailingslashit(parent::getOutputPath() . $this->getName());
+		return StringHelper::trailingslashit(parent::getOutputPath() . $this->getName());
 	}
 
 	/**
@@ -372,7 +372,7 @@ class Package extends BaseBuilder
 					FileHelper::createDirectory($tempPsr0Path, 0755, true);
 					shell_exec("mv {$sourcePath}* $tempPsr0Path");
 					$namespacePath = ltrim(str_replace("\\", '/', $namespacePrefix), '\\');
-					$newPsr0Path = trailingslashit(trailingslashit($packagePath . $directory) . $namespacePath);
+					$newPsr0Path = StringHelper::trailingslashit(StringHelper::trailingslashit($packagePath . $directory) . $namespacePath);
 					FileHelper::createDirectory($newPsr0Path, 0755, true);
 					shell_exec("mv {$tempPsr0Path}/* $newPsr0Path");
 					@rmdir($tempPsr0Path);
